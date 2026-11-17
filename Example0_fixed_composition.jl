@@ -25,6 +25,7 @@ How to use
 
 Run from a terminal:      julia Example0_fixed_composition.jl
 or from the Julia REPL:   include("Example0_fixed_composition.jl")
+The window opens smaller if it would not fit on the screen (window_size.jl).
 =#
 
 using Pkg
@@ -32,6 +33,7 @@ Pkg.activate(@__DIR__)
 
 include(joinpath(@__DIR__, "gibbs_lp.jl"))
 using GLMakie
+include(joinpath(@__DIR__, "window_size.jl"))       # fit_to_screen!: a window that fits on the screen
 
 # =============================================================================
 # USER INPUT
@@ -75,7 +77,7 @@ function build_app()
     # ---------------------------------------------------------------- layout
     fig = Figure(size = (1500, 900), fontsize = 15)
     Label(fig[0, 1:2], "Example 0 – three phases of fixed composition (A, AB, B): " *
-          "Gibbs energy minimisation by linear programming", fontsize = 20, font = :bold)
+          "Gibbs energy minimisation by linear programming", fontsize = 20, font = :bold, word_wrap = true, tellwidth = false)
 
     left  = fig[1, 1] = GridLayout()
     right = fig[1, 2] = GridLayout()
@@ -299,6 +301,7 @@ end
 # =============================================================================
 if abspath(PROGRAM_FILE) == (@__FILE__) || isinteractive()
     fig, app = build_app()
+    fit_to_screen!(fig)                 # smaller than designed if the screen is small (see window_size.jl)
     screen = display(fig)
     isinteractive() || wait(screen)     # keep the window open when run from a terminal
 end
