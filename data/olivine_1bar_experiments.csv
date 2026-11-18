@@ -1,0 +1,32 @@
+# Experimental data for the forsterite–fayalite melting loop at 1 bar (0.1 MPa),
+# shown in Example4_olivine_loop_TX.jl when "experiments at 1 bar" is ticked.
+#
+# One row per measurement:
+#   T_C     temperature [°C]
+#   type    liquidus | solidus | melting   (melting = melting point of an end-member)
+#   Fa      composition: fayalite content (of the liquid for a liquidus point,
+#           of the olivine for a solidus point)
+#   unit    wt  (weight %)  or  mol  (mole %); mol% is converted to wt% for the plot
+#   source  free text (no commas)
+#
+# Lines starting with # are ignored. The file is re-read every time the box is ticked,
+# so rows can be added while the program is running (untick and tick again).
+#
+# Source of the solidus and liquidus points: Bowen & Schairer (1935), The system
+# MgO–FeO–SiO2, Am. J. Sci. 29, 151–217, Fig. 7 (equilibrium diagram of the system
+# Mg2SiO4–Fe2SiO4; data/Papers/Olivine_Melting.png). The points are READ OFF THE
+# FIGURE (filled circles), not taken from the tables of the paper: about ±0.5 wt%
+# and ±5 °C. All compositions are in weight per cent Fa, the unit of the figure.
+#
+T_C,type,Fa,unit,source
+1890,melting,0,wt,forsterite melting point (Bowen & Andersen 1914)
+1205,melting,100,wt,fayalite melting point (Bowen & Schairer 1932)
+1275,solidus,80.0,wt,Bowen & Schairer 1935 Fig. 7 (read off)
+1317,solidus,70.0,wt,Bowen & Schairer 1935 Fig. 7 (read off)
+1410,solidus,54.0,wt,Bowen & Schairer 1935 Fig. 7 (read off)
+1436,solidus,48.3,wt,Bowen & Schairer 1935 Fig. 7 (read off)
+1465,solidus,45.0,wt,Bowen & Schairer 1935 Fig. 7 (read off)
+1495,solidus,41.0,wt,Bowen & Schairer 1935 Fig. 7 (read off)
+1340,liquidus,90.0,wt,Bowen & Schairer 1935 Fig. 7 (read off)
+1450,liquidus,80.0,wt,Bowen & Schairer 1935 Fig. 7 (read off)
+1495,liquidus,75.0,wt,Bowen & Schairer 1935 Fig. 7 (read off)

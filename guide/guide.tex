@@ -7,7 +7,7 @@
 \usepackage{microtype}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
-\usepackage{booktabs}
+\usepackage{booktabs,array}
 \usepackage{enumitem}
 \usepackage{xcolor}
 \usepackage{listings}
@@ -53,7 +53,7 @@
 \title{\textbf{Interactive phase equilibria with Julia}\\[4pt]
 \large A guide to the example programs: Gibbs energy, linear programming\\ and six interactive examples}
 \author{Evangelos Moulas\\[2pt] {\small (made using Claude)}}
-\date{Version 1.1 -- 17 Nov.\ 2026}
+\date{Version 1.2 -- 18 Nov.\ 2026}
 
 \begin{document}
 \maketitle
@@ -91,7 +91,7 @@ explains why that assemblage is stable.
 \begin{table}[H]
 \centering\footnotesize
 \caption{The example programs. All of them are in the main folder.}\label{tab:files}
-\begin{tabular}{@{}lll@{}}
+\begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{6.9cm}@{}}
 \toprule
 File & Diagram & Topic \\
 \midrule
@@ -104,8 +104,12 @@ File & Diagram & Topic \\
 \midrule
 \file{gibbs\_lp.jl}                      & --            & the common core: Gibbs energies and the linear programme \\
 \file{window\_size.jl}                   & --            & makes the window smaller at start-up if the screen is small \\
+\file{Project.toml}                      & --            & the Julia environment (list of packages) \\
 \file{data/olivine\_1bar\_experiments.csv} & --          & experimental data for Example 4 \\
-\file{data/*\_digitized.txt}             & --            & curves read off the published diagrams (Examples 2 and 3) \\
+\file{data/DiAn\_liquidus\_digitized.txt} & --           & digitised Di–An liquidus (fit of Ex.~2) \\
+\file{data/FoSiO2\_liquidus\_Morse\_digitized.txt} & --  & digitised Fo–SiO$_2$ diagram (fit of Ex.~3) \\
+\file{data/FoSiO2\_liquidus\_digitized.txt} & --         & earlier Fo–SiO$_2$ digitisation (not used) \\
+\file{data/Papers/}                      & --            & source papers (MgO–FeO–SiO$_2$; Di–Fo–An) and their olivine loop figure \\
 \file{calibration/}                      & --            & the programs that fit the melt models of Examples 2 and 3 \\
 \file{guide/}                            & --            & this guide and the program that makes its screenshots \\
 \bottomrule
@@ -114,19 +118,20 @@ File & Diagram & Topic \\
 
 \subsection{Installation (once)}
 \begin{enumerate}
-\item Install a recent Julia from \url{https://julialang.org/downloads/} (the package versions in
-  \file{Manifest.toml} were resolved with Julia 1.13; with an older Julia, \lstinline{Pkg.instantiate()} may
-  have to resolve them again). The recommended
+\item Install a recent Julia from \url{https://julialang.org/downloads/} (the programs were developed with
+  Julia 1.13). The recommended
   installer is \emph{juliaup}; on macOS/Linux type
   \lstinline{curl -fsSL https://install.julialang.org | sh} in a terminal, on Windows install
   \emph{Julia} from the Microsoft Store.
-\item Copy the folder \file{julia\_interactive\_thermo} to your computer.
+\item Copy (or \texttt{git clone}) the folder with the programs to your computer.
 \item Open a terminal in that folder and install the packages listed in \file{Project.toml}
   (GLMakie for the graphics, JuMP and GLPK for the linear programme):
 \begin{lstlisting}
 julia --project=. -e "using Pkg; Pkg.instantiate()"
 \end{lstlisting}
-  This downloads and precompiles the packages and takes several minutes the first time.
+  This downloads and precompiles the packages and takes several minutes the first time. No
+  \file{Manifest.toml} is included, so the latest compatible versions are installed and a
+  \file{Manifest.toml} is written in the folder.
 \end{enumerate}
 
 \subsection{Running an example}
@@ -214,7 +219,10 @@ i.e.\ the intercepts of the tangent to $g(X)$ at $X$, are
 \paragraph{Pseudocompounds.} For a \emph{fixed} $X$, Eq.~\eqref{eq:sol} is again linear in $T$ and $P$, i.e.\ of
 the form \eqref{eq:g}: the mixing entropy simply adds to $s$. The programs therefore replace the continuous
 curve by many phases of fixed composition at $X = 0, \tfrac{1}{n-1}, \dots, 1$, the so-called
-\emph{pseudocompounds} (\lstinline{solution_pseudocompounds} in \file{gibbs\_lp.jl}; default 201 of them).
+\emph{pseudocompounds} (\lstinline{solution_pseudocompounds} in \file{gibbs\_lp.jl}; by default 201 per
+solution in Examples 1, 2 and 4). Example~3 uses its own liquid model and spaces its 201 liquids evenly on
+the wt\% axis instead; Example~5 places the liquid on a triangular grid with a step of $1/n$ in weight
+fraction ($n = 40$ by default, i.e.\ 861 pseudocompounds).
 This turns every problem into the same kind of problem as for pure phases.
 
 \paragraph{More than one excess term.} A single $W$ gives an excess term that is symmetric about $X = 0.5$.
@@ -620,8 +628,8 @@ read again every time the box is ticked, so you can add data while the program r
 \begin{itemize}
 \item Compare the model with the experiments. With the literature $\Delta H$ the model loop lies about
   8\,wt\% too far on the Fa side. In the USER INPUT block (\lstinline{MELTING}), try
-  $\Delta H_\mathrm{Fo} = 120.5$ and $\Delta H_\mathrm{Fa} = 116.5$\,kJ/mol, which fit the data within
-  about 1.2\,wt\%.
+  $\Delta H_\mathrm{Fo} = 120.5$ and $\Delta H_\mathrm{Fa} = 116.5$\,kJ/mol, which fit the data with an rms misfit of
+  about 1.1\,wt\% (largest deviation about 2\,wt\%).
 \item Increase \ctl{W of Ol} step by step (20, 40, 60, 80): where does the minimum and then the solvus appear?
 \item Use 11 pseudocompounds and compare the LP boundaries with the exact loop.
 \end{itemize}

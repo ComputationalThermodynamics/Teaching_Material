@@ -51,8 +51,7 @@ split into many *pseudocompounds*, and the minimisation is solved as a **linear 
    curl -fsSL https://install.julialang.org | sh      # macOS / Linux
    ```
 
-   On Windows, install *Julia* from the Microsoft Store. The `Manifest.toml` was resolved with
-   Julia 1.13. With an older Julia, `Pkg.instantiate()` may have to resolve the package versions again.
+   On Windows, install *Julia* from the Microsoft Store. The programs were developed with Julia 1.13.
 
 2. **Get the code:**
 
@@ -61,11 +60,15 @@ split into many *pseudocompounds*, and the minimisation is solved as a **linear 
    cd julia_interactive_thermo
    ```
 
-3. **Install the packages** (GLMakie, JuMP, GLPK). This runs once and takes several minutes:
+3. **Install the packages** listed in `Project.toml` (GLMakie, JuMP, GLPK). This runs once and takes
+   several minutes:
 
    ```sh
    julia --project=. -e "using Pkg; Pkg.instantiate()"
    ```
+
+   No `Manifest.toml` is included, so this installs the latest compatible version of each package
+   and writes a `Manifest.toml` locally.
 
 ## Running an example
 
@@ -95,9 +98,11 @@ julia> include("Example2_eutectic_TX.jl")
 
 ### Using the interface
 
-- **Left-click** in a phase diagram to pick a point (in Example 5, a bulk composition in the triangle).
-- Click **Compute g–x** to draw the $g$–$x$ diagram of that point. You can also switch on
-  *compute on click* to skip this step.
+- **Left-click** in a phase diagram to pick a point (in Example 1, a bulk composition in the $g$–$x$
+  diagram; in Example 5, a bulk composition in the triangle).
+- In Examples 0 and 2–4, click **Compute g–x** to draw the $g$–$x$ diagram of that point. You can also
+  switch on *compute on click* to skip this step. Examples 1 and 5 have no such button: they update
+  immediately.
 - **Sliders** change $P$, $T$, the bulk composition, the Margules parameters, the number of
   pseudocompounds and the grid resolution.
 - **Toggles** hide the coloured stability fields, so that students can find the topology
@@ -126,7 +131,9 @@ $$g^{l} - g^{s} = \Delta H\left(1 - \frac{T}{T_m}\right) + \Delta V\,P$$
 $$g(X) = (1-X)\,g_1 + X\,g_2 + nRT\left[X\ln X + (1-X)\ln(1-X)\right] + W\,X(1-X), \qquad W = W_H - T\,W_S + P\,W_V$$
 
 At a fixed $X$, a solution is again linear in $P$ and $T$, so it is replaced by many
-**pseudocompounds** of fixed composition (201 by default).
+**pseudocompounds** of fixed composition. The binary examples (1–4) use 201 per solution by default,
+evenly spaced in mole fraction (in Example 3, evenly spaced on the wt % axis). Example 5 places the
+liquid on a triangular grid with a step of 1/40 in weight fraction (861 pseudocompounds).
 
 **Gibbs energy minimisation as a linear programme.** $\alpha_i$ is the amount of phase $i$ and
 $A_{ji}$ is the mole fraction of component $j$ in phase $i$:
@@ -186,12 +193,16 @@ parameters of these simple models, not calorimetric values.
 | En–Crs eutectic (Ex. 3) | 1545.3 °C, melt 64.8 wt % SiO₂ | 1543 °C, ≈ 65.0 wt % |
 | Di–An–Fo ternary eutectic (Ex. 5) | 1269 °C, Di49 An44 Fo07 | 1270 °C, Di49 An44 Fo07 |
 
-The fits can be repeated:
+The fits for Examples 2 and 3 can be repeated (the scripts need no packages):
 
 ```sh
 julia calibration/fit_Example2_DiAn.jl
 julia calibration/fit_Example3_FoSiO2.jl
 ```
+
+Example 5 has no fit script. Its calibrated parameters and the comparison with the diagram are
+given in the header and the `USER INPUT` block of
+[`Example5_ternary_DiAnFo.jl`](Example5_ternary_DiAnFo.jl).
 
 ---
 
@@ -207,17 +218,22 @@ julia calibration/fit_Example3_FoSiO2.jl
 ├── Example5_ternary_DiAnFo.jl        Di–An–Fo ternary
 ├── gibbs_lp.jl                       common core: Gibbs energies + linear programme
 ├── window_size.jl                    fits the window to the screen at start-up
-├── Project.toml, Manifest.toml       Julia environment
-├── calibration/                      fits of the melt models (Examples 2 and 3)
+├── Project.toml                      Julia environment (package list)
+├── calibration/
+│   ├── fit_Example2_DiAn.jl          fit of the Di–An melt model (Example 2)
+│   └── fit_Example3_FoSiO2.jl        fit of the Fo–SiO₂ melt model (Example 3)
 ├── data/
-│   ├── DiAn_liquidus_digitized.txt         digitised liquidus, Example 2
-│   ├── FoSiO2_liquidus_Morse_digitized.txt digitised diagram, Example 3
-│   └── olivine_1bar_experiments.csv        experimental data, Example 4
-├── guide/
-│   ├── guide.tex, guide.pdf          the user guide
-│   ├── make_screenshots.jl           regenerates the annotated screenshots
-│   └── figures/
-└── repo/                             earlier course material (parts 1–4)
+│   ├── DiAn_liquidus_digitized.txt         digitised liquidus, used to fit Example 2
+│   ├── FoSiO2_liquidus_Morse_digitized.txt digitised diagram, used to fit Example 3
+│   ├── FoSiO2_liquidus_digitized.txt       earlier digitisation of a Fo–SiO₂ liquidus (not used)
+│   ├── olivine_1bar_experiments.csv        experimental data, Example 4
+│   └── Papers/                             source papers: Bowen & Schairer, MgO–FeO–SiO₂ (Example 4);
+│                                           Osborn & Tait 1954, Di–Fo–An (Example 5);
+│                                           Olivine_Melting.png, their Fig. 7 (Mg₂SiO₄–Fe₂SiO₄ loop)
+└── guide/
+    ├── guide.tex, guide.pdf          the user guide
+    ├── make_screenshots.jl           regenerates the annotated screenshots
+    └── figures/                      screenshots used in the guide and in this README
 ```
 
 The experimental data for Example 4 are a plain CSV file (`T_C, type, Fa, unit, source`). The file
