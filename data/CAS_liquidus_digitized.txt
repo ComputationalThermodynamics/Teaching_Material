@@ -1,0 +1,69 @@
+# CaO-Al2O3-SiO2 liquidus projection, 1 atm, digitised from data/Papers/CAS_Ternary.png
+# (mass fractions). The edges of the triangle were fitted to the PNG: corners CaO (152.98, 845.88),
+# Al2O3 (1032.70, 845.88), SiO2 (594.38, 80.96) px; compositions follow by affine (barycentric)
+# transformation of the pixel position given in the last column.
+#
+# The PNG gives no temperatures of the invariant points, so they are taken from the literature
+# (Osborn & Muan 1960, Phase Equilibrium Diagrams of Oxide Systems, Plate 1 = "O&M"; Jerebtsov &
+# Mikhailov 2001 for CaO-Al2O3 = "J&M"). The digitised compositions agree with O&M to about 1 wt%.
+# The labelled isotherms of the PNG (and the unlabelled 1700 °C line in the cristobalite field) are
+# given as "iso" points; the isotherms are spaced 100 K apart.
+# The cristobalite isotherms have weight 0.1: their flatness reflects the CaO-SiO2 liquid immiscibility,
+# which the model does not have.
+# "field" points lie inside the primary field of the phase (centre of its label).
+#
+# kind   phases (+)         CaO  Al2O3   SiO2  T[°C]  weight  note
+# ---- ternary invariant points (liquid composition) ----
+inv    Crs+Trd+Mul        5.3   13.3   81.4   1470    1.0    px 629.0 223.0; Crs-Trd inversion (1470 °C) on the Mul field
+inv    Trd+Mul+An        10.1   20.1   69.8   1345    1.0    px 638.0 312.0; O&M 9.8/19.8/70.4
+inv    Trd+Pwo+An        23.7   14.5   61.8   1170    1.0    px 553.0 373.0; O&M 23.25/14.75/62.0
+inv    Pwo+An+Gh         37.5   20.1   42.5   1265    1.0    px 517.0 521.0; O&M 38/20/42
+inv    Pwo+Gh+C2S        48.0   11.6   40.4   1315    1.0    px 433.0 537.0; O&M 1310 (Pwo+Gh+C3S2), 1335 (Gh+C3S2+C2S); rankinite omitted
+inv    An+Mul+Crn        15.2   37.6   47.2   1512    1.0    px 692.0 485.0; O&M 15.6/36.5/47.9
+inv    An+Crn+CA6        23.0   41.5   35.5   1495    0.5    px 675.0 574.0; estimate
+inv    An+CA6+Gh         29.1   39.0   31.9   1380    1.0    px 637.0 602.0; O&M (An+Crn+Gh) 29.2/39.0/31.8
+inv    Gh+CA6+CA2        31.6   45.1   23.3   1475    1.0    px 652.5 667.5; O&M 31.2/44.5/24.3
+inv    Gh+CA2+CA         37.6   52.9    9.5   1500    1.0    px 660.0 773.0; O&M 37.5/53.2/9.3
+inv    Gh+CA+C2S         48.2   42.1    9.7   1380    1.0    px 566.0 772.0; O&M 48.3/42.0/9.7
+inv    C2S+CA+C3A        49.7   43.4    6.9   1335    1.0    px 565.0 793.0; O&M 49.5/43.7/6.8 (with C12A7)
+inv    C2S+C3A+Lime      59.0   32.2    8.9   1460    1.0    px 475.0 778.0; O&M 1455 (C3S+C3A+C2S), 1470 (Lime+C3S+C3A); C3S omitted
+# ---- binary points on the edges ----
+bin    Lime+C2S          71.0    0.0   29.0   2050    0.5    C2S-C3S eutectic 2050; narrow C3S field (28-30 wt% SiO2) omitted
+bin    C2S+Pwo           54.8    0.0   45.2   1460    1.0    CS-C3S2 eutectic 1460
+bin    Pwo+Trd           36.2    0.0   63.8   1436    1.0    
+bin    Trd+Crs           34.3    0.0   65.7   1470    1.0    Crs-Trd inversion
+bin    Crs+Mul            0.0    8.0   92.0   1590    1.0    
+bin    Mul+Crn            0.0   77.9   22.1   1840    1.0    
+bin    Crn+CA6            8.3   91.7    0.0   1850    0.5    J&M 1852; the PNG puts it at 88.5 wt% Al2O3
+bin    CA6+CA2           20.8   79.2    0.0   1760    1.0    J&M 1762
+bin    CA2+CA            33.8   66.2    0.0   1600    1.0    J&M 1604
+bin    CA+C3A            47.0   53.0    0.0   1375    1.0    J&M 1371
+bin    C3A+Lime          59.5   40.5    0.0   1540    1.0    J&M 1540
+# ---- isotherms (a point on the line) ----
+iso    Lime              89.5    4.7    5.7   2400    0.3    px 220.0 802.0
+iso    Lime              80.4   13.8    5.7   2200    0.3    px 300.0 802.0
+iso    Lime              72.5   21.8    5.7   2000    0.3    px 370.0 802.0
+iso    C2S               59.7   18.0   22.3   1800    0.3    px 410.0 675.0
+iso    C2S               55.6   27.6   16.8   1600    0.3    px 470.0 717.0
+iso    Gh                43.7   18.0   38.3   1400    0.3    px 480.0 553.0
+iso    Pwo               39.5   13.0   47.4   1400    0.3    px 477.0 483.0
+iso    An                28.7   25.7   45.6   1400    0.3    px 580.0 497.0
+iso    Trd               11.3   15.0   73.7   1400    0.3    px 610.0 282.0
+iso    Crs               11.8    4.5   83.8   1600    0.1    px 562.0 205.0
+iso    Crs               30.2    0.1   69.8   1600    0.1    px 461.5 312.0
+iso    Crs               13.5    0.7   85.7   1700    0.1    px 538.0 190.0
+iso    Crs               26.0    0.1   74.0   1700    0.1    px 480.0 280.0
+iso    Mul                5.9   26.6   67.4   1600    0.3    px 685.0 330.0
+iso    Mul                3.4   54.9   41.7   1800    0.3    px 820.0 527.0
+# ---- one point inside every primary phase field ----
+field  Lime              78.4    8.4   13.2      -    1.0    px 285.0 745.0
+field  C2S               59.4   10.9   29.8      -    1.0    px 380.0 618.0
+field  Pwo               42.7    5.5   51.8      -    1.0    px 430.0 450.0
+field  An                23.6   27.3   49.1      -    1.0    px 610.0 470.0
+field  Mul                7.4   39.5   53.1      -    1.0    px 735.0 440.0
+field  Crn               10.9   63.5   25.6      -    1.0    px 825.0 650.0
+field  CA6               21.5   64.0   14.5      -    1.0    px 780.0 735.0
+field  CA2               29.8   63.5    6.7      -    1.0    px 741.0 795.0
+field  CA                41.7   54.7    3.6      -    1.0    px 650.0 818.0
+field  Gh                39.6   35.5   25.0      -    1.0    px 575.0 655.0
+field  C3A               54.1   43.2    2.7      -    1.0    px 545.0 825.0

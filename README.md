@@ -26,6 +26,7 @@ split into many *pseudocompounds*, and the minimisation is solved as a **linear 
 | [`Example3_peritectic_TX.jl`](Example3_peritectic_TX.jl) | $T$–$X$ | Binary peritectic forsterite–silica (Fo–SiO₂): enstatite melts incongruently; two liquids |
 | [`Example4_olivine_loop_TX.jl`](Example4_olivine_loop_TX.jl) | $T$–$X$ | Melting loop of a solid solution (olivine Fo–Fa), compared with 1 bar experiments |
 | [`Example5_ternary_DiAnFo.jl`](Example5_ternary_DiAnFo.jl) | ternary + 3D | Di–An–Fo: isothermal sections, liquidus projection and the $g$ surface with its tangent plane |
+| [`Example6_ternary_CAS.jl`](Example6_ternary_CAS.jl) | ternary + 3D | CaO–Al₂O₃–SiO₂: thirteen solids (congruent and incongruent compounds), liquidus projection compared with the course figure |
 
 <table>
 <tr>
@@ -38,6 +39,9 @@ split into many *pseudocompounds*, and the minimisation is solved as a **linear 
 </tr>
 <tr>
 <td colspan="2"><img src="guide/figures/ex5_overview.png" alt="Example 5"><br><sub><b>Example 5</b>: the Di–An–Fo ternary at 1450 °C, bulk Di19 An30 Fo51 (Fo + L)</sub></td>
+</tr>
+<tr>
+<td colspan="2"><img src="guide/figures/ex6_overview.png" alt="Example 6"><br><sub><b>Example 6</b>: CaO–Al₂O₃–SiO₂, model liquidus projection drawn over the course figure (red: invariant points used for the calibration)</sub></td>
 </tr>
 </table>
 
@@ -192,13 +196,22 @@ parameters of these simple models, not calorimetric values.
 | Fo–SiO₂ peritectic (Ex. 3) | 1555.5 °C, melt 61.3 wt % SiO₂ | 1557 °C, ≈ 61.3 wt % |
 | En–Crs eutectic (Ex. 3) | 1545.3 °C, melt 64.8 wt % SiO₂ | 1543 °C, ≈ 65.0 wt % |
 | Di–An–Fo ternary eutectic (Ex. 5) | 1269 °C, Di49 An44 Fo07 | 1270 °C, Di49 An44 Fo07 |
+| CaO–Al₂O₃–SiO₂ An–Pwo–Trd eutectic (Ex. 6) | 1182 °C, C24 A14 S61 | 1170 °C, C23 A15 S62 |
+| CaO–Al₂O₃–SiO₂, all 24 invariant and edge points (Ex. 6) | rms 27 K, max 86 K; 3 wt% | Osborn & Muan (1960); course figure |
 
-The fits for Examples 2 and 3 can be repeated (the scripts need no packages):
+The fits for Examples 2, 3 and 6 can be repeated (the scripts need no packages):
 
 ```sh
 julia calibration/fit_Example2_DiAn.jl
 julia calibration/fit_Example3_FoSiO2.jl
+julia calibration/fit_Example6_CAS.jl 1000      # number of iterations; restarts from the last result
 ```
+
+Example 6 was fitted to the liquidus projection `data/Papers/CAS_Ternary.png`, digitised in
+`data/CAS_liquidus_digitized.txt` (the temperatures of the invariant points are literature values). It
+reproduces every primary field of the figure; the narrow Ca₃SiO₅ and rankinite fields are left out, and the
+model has no liquid immiscibility, so its cristobalite liquidus next to the CaO–SiO₂ edge is 100–200 K too low
+(see the header of [`Example6_ternary_CAS.jl`](Example6_ternary_CAS.jl)).
 
 Example 5 has no fit script. Its calibrated parameters and the comparison with the diagram are
 given in the header and the `USER INPUT` block of
@@ -216,20 +229,25 @@ given in the header and the `USER INPUT` block of
 ├── Example3_peritectic_TX.jl         Fo–SiO₂ peritectic
 ├── Example4_olivine_loop_TX.jl       olivine melting loop
 ├── Example5_ternary_DiAnFo.jl        Di–An–Fo ternary
+├── Example6_ternary_CAS.jl           CaO–Al2O3–SiO2 ternary
 ├── gibbs_lp.jl                       common core: Gibbs energies + linear programme
 ├── window_size.jl                    fits the window to the screen at start-up
 ├── Project.toml                      Julia environment (package list)
 ├── calibration/
 │   ├── fit_Example2_DiAn.jl          fit of the Di–An melt model (Example 2)
-│   └── fit_Example3_FoSiO2.jl        fit of the Fo–SiO₂ melt model (Example 3)
+│   ├── fit_Example3_FoSiO2.jl        fit of the Fo–SiO₂ melt model (Example 3)
+│   ├── fit_Example6_CAS.jl           fit of the CaO–Al₂O₃–SiO₂ model (Example 6)
+│   └── fit_Example6_CAS_start.jl     last fitted parameter vector (start of the next run)
 ├── data/
 │   ├── DiAn_liquidus_digitized.txt         digitised liquidus, used to fit Example 2
 │   ├── FoSiO2_liquidus_Morse_digitized.txt digitised diagram, used to fit Example 3
 │   ├── FoSiO2_liquidus_digitized.txt       earlier digitisation of a Fo–SiO₂ liquidus (not used)
 │   ├── olivine_1bar_experiments.csv        experimental data, Example 4
+│   ├── CAS_liquidus_digitized.txt          digitised CaO–Al₂O₃–SiO₂ projection, used to fit Example 6
 │   └── Papers/                             source papers: Bowen & Schairer, MgO–FeO–SiO₂ (Example 4);
 │                                           Osborn & Tait 1954, Di–Fo–An (Example 5);
-│                                           Olivine_Melting.png, their Fig. 7 (Mg₂SiO₄–Fe₂SiO₄ loop)
+│                                           Olivine_Melting.png, their Fig. 7 (Mg₂SiO₄–Fe₂SiO₄ loop);
+│                                           CAS_Ternary.png, CaO–Al₂O₃–SiO₂ liquidus projection (Example 6)
 └── guide/
     ├── guide.tex, guide.pdf          the user guide
     ├── make_screenshots.jl           regenerates the annotated screenshots
