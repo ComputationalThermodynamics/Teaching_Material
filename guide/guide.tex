@@ -51,9 +51,9 @@
 \captionsetup{font=small,labelfont=bf}
 
 \title{\textbf{Interactive phase equilibria with Julia}\\[4pt]
-\large A guide to the example programs: Gibbs energy, linear programming\\ and six interactive examples}
+\large A guide to the example programs: Gibbs energy, linear programming\\ and seven interactive examples}
 \author{Evangelos Moulas\\[2pt] {\small (made using Claude)}}
-\date{Version 1.2 -- 18 Nov.\ 2026}
+\date{Version 1.3 -- 19 Nov.\ 2026}
 
 \begin{document}
 \maketitle
@@ -66,9 +66,9 @@ they compute. All programs do the same thing: for given pressure, temperature an
 the stable mineral assemblage by \emph{minimising the Gibbs energy of the system}, written as a linear
 programme. Section~\ref{sec:intro} tells you how to start the programs, Section~\ref{sec:gibbs} how the Gibbs
 energy of every phase is calculated and Section~\ref{sec:lp} how the minimisation is set up. The calculation
-is always done in moles; the diagrams of Examples 2–5 are \emph{shown} in weight per cent, like the published
+is always done in moles; the diagrams of Examples 2–6 are \emph{shown} in weight per cent, like the published
 diagrams they are compared with (Section~\ref{sec:weight}). Sections
-\ref{sec:ex0}–\ref{sec:ex5} then go through the six examples one by one. Every example has an annotated
+\ref{sec:ex0}–\ref{sec:ex6} then go through the seven examples one by one. Every example has an annotated
 screenshot: the red numbers \step{1}, \step{2}, \dots\ show where to click and in which order.
 \end{abstract}
 
@@ -101,6 +101,7 @@ File & Diagram & Topic \\
 \file{Example3\_peritectic\_TX.jl}       & $T$–$X$       & binary peritectic Fo–SiO$_2$ (En melts incongruently; two liquids) \\
 \file{Example4\_olivine\_loop\_TX.jl}    & $T$–$X$       & melting loop of a solid solution (olivine Fo–Fa) \\
 \file{Example5\_ternary\_DiAnFo.jl}      & ternary       & Di–An–Fo, calibrated against the liquidus diagram \\
+\file{Example6\_ternary\_CAS.jl}         & ternary       & CaO–Al$_2$O$_3$–SiO$_2$: 13 solids (congruent and incongruent compounds), calibrated against the liquidus projection \\
 \midrule
 \file{gibbs\_lp.jl}                      & --            & the common core: Gibbs energies and the linear programme \\
 \file{window\_size.jl}                   & --            & makes the window smaller at start-up if the screen is small \\
@@ -109,8 +110,9 @@ File & Diagram & Topic \\
 \file{data/DiAn\_liquidus\_digitized.txt} & --           & digitised Di–An liquidus (fit of Ex.~2) \\
 \file{data/FoSiO2\_liquidus\_Morse\_digitized.txt} & --  & digitised Fo–SiO$_2$ diagram (fit of Ex.~3) \\
 \file{data/FoSiO2\_liquidus\_digitized.txt} & --         & earlier Fo–SiO$_2$ digitisation (not used) \\
-\file{data/Papers/}                      & --            & source papers (MgO–FeO–SiO$_2$; Di–Fo–An) and their olivine loop figure \\
-\file{calibration/}                      & --            & the programs that fit the melt models of Examples 2 and 3 \\
+\file{data/CAS\_liquidus\_digitized.txt} & --            & digitised CaO–Al$_2$O$_3$–SiO$_2$ projection (fit of Ex.~6) \\
+\file{data/Papers/}                      & --            & source papers (MgO–FeO–SiO$_2$; Di–Fo–An; MgO–Al$_2$O$_3$–SiO$_2$), the olivine loop figure and the CaO–Al$_2$O$_3$–SiO$_2$ liquidus projection \\
+\file{calibration/}                      & --            & the programs that fit the melt models of Examples 2, 3 and 6 \\
 \file{guide/}                            & --            & this guide and the program that makes its screenshots \\
 \bottomrule
 \end{tabular}
@@ -160,8 +162,8 @@ All windows use the same few elements:
   controls keep their size; the diagrams get the space that is left. The limits can be changed in
   \file{window\_size.jl} (\lstinline{WINDOW_FRACTION}).
 \item \textbf{Diagrams}: a \emph{left click} in a phase diagram picks a point (a cross appears). Zooming and
-  panning are switched off so that the diagrams do not move by accident (the 3D view of Example~5 can be
-  rotated by dragging).
+  panning are switched off so that the diagrams do not move by accident (the 3D views of Examples~5 and~6
+  can be rotated by dragging).
 \item \textbf{Buttons}, e.g.\ \btn{Compute g–x}: click once.
 \item \textbf{Sliders}: drag the knob; the value is shown on the right.
 \item \textbf{Toggles} (round switches) and \textbf{check boxes}: click to switch on/off.
@@ -221,7 +223,7 @@ the form \eqref{eq:g}: the mixing entropy simply adds to $s$. The programs there
 curve by many phases of fixed composition at $X = 0, \tfrac{1}{n-1}, \dots, 1$, the so-called
 \emph{pseudocompounds} (\lstinline{solution_pseudocompounds} in \file{gibbs\_lp.jl}; by default 201 per
 solution in Examples 1, 2 and 4). Example~3 uses its own liquid model and spaces its 201 liquids evenly on
-the wt\% axis instead; Example~5 places the liquid on a triangular grid with a step of $1/n$ in weight
+the wt\% axis instead; Examples~5 and~6 place the liquid on a triangular grid with a step of $1/n$ in weight
 fraction ($n = 40$ by default, i.e.\ 861 pseudocompounds).
 This turns every problem into the same kind of problem as for pure phases.
 
@@ -235,7 +237,7 @@ linear in $T$, so the pseudocompounds work in the same way.
 
 \subsection{Moles in the calculation, weight per cent in the plots}\label{sec:weight}
 All Gibbs energies above are per mole and all compositions are mole fractions: the ideal entropy of mixing in
-Eq.~\eqref{eq:sol} counts particles, not grams. The published phase diagrams that Examples 2–5 are compared
+Eq.~\eqref{eq:sol} counts particles, not grams. The published phase diagrams that Examples 2–6 are compared
 with are, however, drawn in \emph{weight} per cent. The programs therefore calculate in moles and convert
 only what is \emph{shown}. For a phase with the mole fractions $x_i$ of the components, whose molar masses
 are $M_i$ (Table~\ref{tab:mass}), the mass of one mole is $\bar M = \sum_i x_i M_i$ and
@@ -245,7 +247,7 @@ are $M_i$ (Table~\ref{tab:mass}), the mass of one mole is $\bar M = \sum_i x_i M
   g\,[\mathrm{J/g}] = \frac{g\,[\mathrm{J/mol}]}{\bar M}, \qquad
   \mu_i\,[\mathrm{J/g}] = \frac{\mu_i\,[\mathrm{J/mol}]}{M_i} .
 \end{equation}
-Three consequences are used in Examples 2–5:
+Three consequences are used in Examples 2–6:
 \begin{itemize}
 \item \textbf{The common tangent stays straight.} Dividing the tangent line $g = \sum_i \mu_i x_i$ by $\bar M$
   gives $g/\bar M = \sum_i (\mu_i/M_i)\,w_i$: a straight line (a plane in the ternary) in mole fractions and
@@ -263,23 +265,24 @@ Three consequences are used in Examples 2–5:
 \begin{table}[H]
 \centering\small
 \caption{Molar masses used for the conversion (g/mol).}\label{tab:mass}
-\begin{tabular}{@{}lllll@{}}
+\begin{tabular}{@{}lllllll@{}}
 \toprule
-Di, CaMgSi$_2$O$_6$ & An, CaAl$_2$Si$_2$O$_8$ & Fo, Mg$_2$SiO$_4$ & Fa, Fe$_2$SiO$_4$ & SiO$_2$ \\
+Di, CaMgSi$_2$O$_6$ & An, CaAl$_2$Si$_2$O$_8$ & Fo, Mg$_2$SiO$_4$ & Fa, Fe$_2$SiO$_4$ & SiO$_2$ & CaO & Al$_2$O$_3$ \\
 \midrule
-216.55 & 278.21 & 140.69 & 203.77 & 60.08 \\
+216.55 & 278.21 & 140.69 & 203.77 & 60.08 & 56.08 & 101.96 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Calibrated examples.} Examples 2, 3 and 5 reproduce published diagrams. Their curves were read off
+\paragraph{Calibrated examples.} Examples 2, 3, 5 and 6 reproduce published diagrams. Their curves were read off
 the diagrams in wt\%, \emph{converted to mole fractions}, and the parameters of the melt (enthalpies of fusion,
 excess terms) were fitted to them in mole fractions. The fitted numbers are parameters of these simple models,
-not calorimetric values. For Examples 2 and 3 the digitised curves are in the folder \file{data/} and the
+not calorimetric values. For Examples 2, 3 and 6 the digitised curves are in the folder \file{data/} and the
 programs that do the fit in \file{calibration/}; they can be run again, e.g.\
 \lstinline{julia calibration/fit_Example2_DiAn.jl}. Example 5 (ternary) uses the same ideas with three
 end-members, an effective number of mixing units per formula unit and asymmetric excess terms
-(Section~\ref{sec:ex5}).
+(Section~\ref{sec:ex5}); Example 6 extends them to a ternary of oxides with thirteen compounds
+(Section~\ref{sec:ex6}).
 
 %==============================================================================
 \section{How the minimisation is set up}\label{sec:lp}
@@ -303,7 +306,7 @@ solutions per second possible.
 \subsection{What the solution tells us}
 \begin{itemize}
 \item \textbf{Phase amounts.} The phases with $\alpha_i > 0$ are the stable assemblage; $\alpha_i$ are their
-  proportions in moles (the lever rule). Examples 2–5 print them as mass fractions (Section~\ref{sec:weight}).
+  proportions in moles (the lever rule). Examples 2–6 print them as mass fractions (Section~\ref{sec:weight}).
 \item \textbf{Chemical potentials.} The Lagrange multipliers (dual variables) $\mu_j$ of the mass-balance
   constraints are the chemical potentials of the components. The dual problem is
   $\max \sum_j \mu_j b_j$ subject to $\sum_j A_{ji}\mu_j \le g_i$ for every phase: the tangent line (plane)
@@ -322,8 +325,8 @@ solutions per second possible.
 With pseudocompounds the LP picks the points of the lower convex hull of all phases. Two \emph{neighbouring}
 pseudocompounds of the same solution represent one phase whose composition lies between them; two
 separated ones represent two coexisting phases of the same solution (e.g.\ $\alpha + \alpha$ across a
-solvus). Examples 2–4 take two stable pseudocompounds that are not neighbours as two phases; Examples 1
-and 5 check in addition whether the continuous $g$ curve between them has a hump.
+solvus). Examples 2–4 take two stable pseudocompounds that are not neighbours as two phases; Examples 1,
+5 and 6 check in addition whether the continuous $g$ curve (surface) between them has a hump.
 The composition of a solution phase is resolved to about the spacing of the pseudocompounds; you can change
 their number with a slider to see the effect.
 
@@ -706,6 +709,170 @@ reference diagram.}
 \item At 1290\,$^\circ$C two three-phase triangles exist (An + Fo + L and Di + Fo + L). Why, given the
   temperatures of the binary eutectics?
 \item Rotate the 3D view until you look along the tangent plane: which phases touch it?
+\end{itemize}
+\end{tryit}
+
+%==============================================================================
+\clearpage
+\section{Example 6 – the ternary CaO–Al\texorpdfstring{$_2$}{2}O\texorpdfstring{$_3$}{3}–SiO\texorpdfstring{$_2$}{2}}\label{sec:ex6}
+%==============================================================================
+\textbf{File:} \file{Example6\_ternary\_CAS.jl}.\quad
+The same program as Example~5, but for a system whose corners are \emph{oxides} and whose solids are mostly
+\emph{compounds} that lie inside the triangle or on its edges. The triangle is drawn in wt\% with CaO bottom
+left, Al$_2$O$_3$ bottom right and SiO$_2$ at the top, as the liquidus projection of the course
+(\file{data/Papers/CAS\_Ternary.png}). Compositions are written in cement notation, C = CaO, A = Al$_2$O$_3$,
+S = SiO$_2$, e.g.\ C28 A16 S56 = 28\,wt\% CaO, 16\,wt\% Al$_2$O$_3$, 56\,wt\% SiO$_2$. There is no pressure
+slider: the diagram is for 1\,atm, and at high pressure other phases (garnet, kyanite, \dots) appear that
+are not in the model.
+
+\begin{table}[H]
+\centering\small
+\caption{The solids of Example 6. ``Congruent'': the compound lies inside its own primary field and melts to a
+liquid of its own composition; ``incongruent'': it lies outside its field and melts to another solid + liquid.}
+\label{tab:cas}
+\begin{tabular}{@{}llll@{}}
+\toprule
+key & phase & formula (notation) & melting \\ \midrule
+Lime & lime & CaO (C) & 2572\,$^\circ$C \\
+Crs, Trd & cristobalite, tridymite & SiO$_2$ (S) & 1723\,$^\circ$C (Crs); Trd stable below 1470\,$^\circ$C \\
+Crn & corundum & Al$_2$O$_3$ (A) & 2054\,$^\circ$C \\
+Pwo & pseudowollastonite & CaSiO$_3$ (CS) & congruent, 1544\,$^\circ$C \\
+C2S & dicalcium silicate & Ca$_2$SiO$_4$ (C$_2$S) & congruent, 2130\,$^\circ$C \\
+An & anorthite & CaAl$_2$Si$_2$O$_8$ (CAS$_2$) & congruent, 1553\,$^\circ$C \\
+Gh & gehlenite & Ca$_2$Al$_2$SiO$_7$ (C$_2$AS) & congruent, 1593\,$^\circ$C \\
+Mul & mullite & Al$_6$Si$_2$O$_{13}$ (A$_3$S$_2$) & congruent, 1890\,$^\circ$C \\
+CA, CA2 & calcium aluminates & CaAl$_2$O$_4$, CaAl$_4$O$_7$ & congruent, 1604 and 1765\,$^\circ$C \\
+CA6 & hibonite & CaAl$_{12}$O$_{19}$ & incongruent (Crn + L) \\
+C3A & tricalcium aluminate & Ca$_3$Al$_2$O$_6$ & incongruent (Lime + L) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{The model.} The calculation is in moles of the oxides ($x_i$ = mole fractions of CaO, Al$_2$O$_3$,
+SiO$_2$; $g$ in kJ per mole of oxides). The reference states are the pure oxide \emph{liquids} ($g = 0$). As in
+Example~5 the liquid mixes $q_i$ ``mixing units'' per mole of oxide $i$ (unit fractions
+$y_i = q_i x_i/\sum_j q_j x_j$, $\nu = \sum_j q_j x_j$),
+\begin{equation}\label{eq:casliq}
+  g_L(x, T) = \nu\Big[RT\sum_i y_i\ln y_i + \sum_m \big(W_{H,m} - T\,W_{S,m}\big)\prod_i y_i^{e_{m,i}}\Big],
+\end{equation}
+with 26 excess terms (powers $e_m$ of degree 3 to 5; the fit gives an appreciable entropy part $W_S$ only to the
+seven terms of degree 3, the others are kept almost purely enthalpic).
+Every \emph{solid} $s$ with the oxide mole fractions $c_s$ is defined from the liquid of the \emph{same}
+composition and a fusion term, Eq.~\eqref{eq:melt}:
+\begin{equation}\label{eq:cassol}
+  g_s(T) = g_L(c_s, T) - \Delta H_s\left(1 - \frac{T}{T_{m,s}}\right).
+\end{equation}
+A compound that melts congruently therefore melts exactly at its melting point $T_{m,s}$, whatever the liquid
+model is. For CA6 and C3A, which melt incongruently, $T_{m,s}$ is a fitted melting point that is never
+reached (the compound breaks down first). Tridymite is cristobalite with
+$g_\mathrm{Trd} - g_\mathrm{Crs} = -\Delta H_t\,(1 - T/T_t)$, $T_t = 1470\,^\circ$C. All $g$ are again of the
+form \eqref{eq:g}, so the linear programme is the same as before: 13 solids and 861 liquid pseudocompounds.
+
+\paragraph{Liquidus.} Solid $s$ is saturated in a liquid of composition $x$ when
+$\sum_i c_{s,i}\,\mu_i^L(x, T) = g_s(T)$. Both sides are linear in $T$ ($\mu_i^L = A_i(x) - T\,B_i(x)$), so the
+liquidus temperature of every solid has a closed form,
+\begin{equation}\label{eq:castl}
+  T_s(x) = \frac{\sum_i c_{s,i} A_i(x) - h_s}{\sum_i c_{s,i} B_i(x) - s_s},
+\end{equation}
+and the liquidus is the highest of them. The liquidus projection (primary fields, field boundaries, isotherms,
+invariant points) is computed from Eq.~\eqref{eq:castl}; the isothermal sections come from the LP.
+
+\paragraph{Calibration.} {\sloppy The liquidus projection of the course was digitised
+(\file{data/\allowbreak CAS\_liquidus\_\allowbreak digitized.txt}): 13 ternary invariant points, 11 points on
+the edges, the labelled isotherms and one point inside every primary field. The figure gives no temperatures
+for the invariant points; they are taken from Osborn and Muan (1960) and, for CaO–Al$_2$O$_3$, from Jerebtsov
+and Mikhailov (2001). The digitised compositions agree with Osborn and Muan to about 1\,wt\%. The program
+\file{calibration/\allowbreak fit\_Example6\_CAS.jl} fits $q$, the excess terms, the $\Delta H_s$ and the two
+metastable melting points (Levenberg–Marquardt, no packages needed); a penalty keeps the liquid stable
+(convex $g$, no unmixing) on a grid of compositions. The script prints the parameter block for the USER INPUT
+section of the example.\par}
+\begin{table}[H]
+\centering\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & model & Osborn \& Muan (1960) \\ \midrule
+An + Pwo + Trd (eutectic) & 1182\,$^\circ$C, C24 A14 S61 & 1170\,$^\circ$C, C23 A15 S62 \\
+An + Gh + Pwo (eutectic)  & 1279\,$^\circ$C, C37 A21 S42 & 1265\,$^\circ$C, C38 A20 S42 \\
+An + Mul + Trd            & 1332\,$^\circ$C, C12 A21 S68 & 1345\,$^\circ$C, C10 A20 S70 \\
+An + Mul + Crn            & 1483\,$^\circ$C, C15 A34 S52 & 1512\,$^\circ$C, C16 A37 S48 \\
+C2S + CA + C3A            & 1336\,$^\circ$C, C49 A44 S7  & 1335\,$^\circ$C, C50 A44 S7 \\
+\midrule
+all 13 ternary + 11 edge points & \multicolumn{2}{l}{rms 27\,K, max 86\,K; liquid compositions rms 3\,wt\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\noindent Every primary field of the figure is reproduced, except two very narrow fields that were left
+out: Ca$_3$SiO$_5$ (between lime and C2S) and rankinite Ca$_3$Si$_2$O$_7$ (between C2S and Pwo). The fitted
+$\Delta H_s$ are \emph{effective} parameters, not calorimetric values.
+
+\begin{note}
+The real CaO–SiO$_2$ liquid unmixes near SiO$_2$: two liquids above about 1690\,$^\circ$C, as in the
+MgO–SiO$_2$ system of Example~3. This is why the cristobalite isotherms of the figure (1600 and 1700\,$^\circ$C)
+are so flat next to the CaO–SiO$_2$ edge. The model has no two-liquid field, so its cristobalite liquidus
+there is 100–200\,K too low. The lime liquidus at the Lime–C2S boundary is about 85\,K too low.
+\end{note}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/ex6_overview.png}
+\caption{Example 6 at 1400\,$^\circ$C with the bulk composition C28 A16 S56 (the green dot of the course
+figure): the bulk is completely molten. The isothermal section is coloured; the black lines are the liquidus
+projection of the model, the red dashed line the liquidus isotherm at 1400\,$^\circ$C.}
+\label{fig:ex6}
+\end{figure}
+
+\paragraph{Step by step} (numbers as in Fig.~\ref{fig:ex6})
+\begin{enumerate}[label=\protect\step{\arabic*}]
+\item \textbf{Left-click} inside the triangle to choose the bulk composition. The 3D view and the tie-line
+  (or tie-triangle) are updated immediately; there is no compute button.
+\item Or type the composition in wt\% into the box, e.g.\ \texttt{28 16 56} (CaO Al$_2$O$_3$ SiO$_2$), and
+  press Enter.
+\item \ctl{T [$^\circ$C]} (1100–2650\,$^\circ$C): the 3D view follows immediately; the isothermal section is
+  recomputed when you stop dragging (or press \btn{Update section}).
+\item Toggles: \ctl{isothermal section} (stable assemblage on a grid of bulk compositions, by LP),
+  \ctl{liquidus projection} (primary fields, field boundaries, isotherms and invariant points of the model,
+  with their temperatures) and \ctl{reference (figure)} (the course figure is drawn underneath, with the
+  invariant points used for the calibration and their literature temperatures in red).
+\item \btn{Update section} recomputes the isothermal section, e.g.\ after changing \ctl{section cells}.
+\item The 3D view: the $g$ surface of the liquid over the composition triangle (per gram, over the wt\%
+  triangle), the solids as dots at their own composition (black: stable), the tangent plane through the
+  stable phases (its heights at the corners are $\mu_\mathrm{CaO}$, $\mu_\mathrm{Al_2O_3}$,
+  $\mu_\mathrm{SiO_2}$ per gram; the values in kJ/mol are printed below the view) and the bulk composition
+  (star). Drag with the mouse to rotate.
+\end{enumerate}
+The open squares in the triangle mark the compositions of the compounds. A congruently melting compound lies
+inside its own field (e.g.\ An, Gh, Mul); CA6 and C3A lie outside theirs.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.49\textwidth]{figures/ex6_reference.png}\hfill
+\includegraphics[width=0.49\textwidth]{figures/ex6_projection.png}
+\caption{Left: the liquidus projection of the model drawn over the course figure (\ctl{reference (figure)}
+on, isothermal section off); red diamonds: invariant points used for the calibration with their literature
+temperatures, black: the model. Right: the liquidus projection of the model alone, coloured by primary field.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/ex6_1300.png}
+\caption{1300\,$^\circ$C, bulk C40 A30 S30: Pwo + Gh + L (a three-phase triangle). The tangent plane touches
+the two solids and the liquid.}
+\end{figure}
+
+\begin{tryit}
+\begin{itemize}
+\item Cool the green dot C28 A16 S56 from 1400\,$^\circ$C. At which temperature does the first solid appear,
+  and which one? The composition lies on the Pwo–An boundary: what crystallises together, and where does the
+  liquid go? Below which temperature is everything solid (An + Pwo + Trd)?
+\item Heat the anorthite composition (C20 A37 S43) through 1553\,$^\circ$C and then the CA6 composition
+  (C8 A92 S0) through about 1890\,$^\circ$C. Which one melts to a liquid of its own composition, and what does
+  the other one give?
+\item Switch on \ctl{reference (figure)} with the isothermal section off. Where does the model differ most
+  from the figure? Explain the difference near the SiO$_2$ corner with Example~3.
+\item At 1300\,$^\circ$C find the three-phase triangles. Each solid–solid side of a triangle is an
+  \emph{Alkemade line}; which compounds are joined in this way?
+\item In the 3D view, compare the dot of a solid with the liquid surface directly above or below it: below
+  the melting point the solid lies below the liquid of the same composition, Eq.~\eqref{eq:cassol}.
 \end{itemize}
 \end{tryit}
 

@@ -41,7 +41,7 @@ split into many *pseudocompounds*, and the minimisation is solved as a **linear 
 <td colspan="2"><img src="guide/figures/ex5_overview.png" alt="Example 5"><br><sub><b>Example 5</b>: the Di–An–Fo ternary at 1450 °C, bulk Di19 An30 Fo51 (Fo + L)</sub></td>
 </tr>
 <tr>
-<td colspan="2"><img src="guide/figures/ex6_overview.png" alt="Example 6"><br><sub><b>Example 6</b>: CaO–Al₂O₃–SiO₂, model liquidus projection drawn over the course figure (red: invariant points used for the calibration)</sub></td>
+<td colspan="2"><img src="guide/figures/ex6_reference.png" alt="Example 6"><br><sub><b>Example 6</b>: CaO–Al₂O₃–SiO₂, model liquidus projection drawn over the course figure (red: invariant points used for the calibration)</sub></td>
 </tr>
 </table>
 
@@ -103,9 +103,9 @@ julia> include("Example2_eutectic_TX.jl")
 ### Using the interface
 
 - **Left-click** in a phase diagram to pick a point (in Example 1, a bulk composition in the $g$–$x$
-  diagram; in Example 5, a bulk composition in the triangle).
+  diagram; in Examples 5 and 6, a bulk composition in the triangle).
 - In Examples 0 and 2–4, click **Compute g–x** to draw the $g$–$x$ diagram of that point. You can also
-  switch on *compute on click* to skip this step. Examples 1 and 5 have no such button: they update
+  switch on *compute on click* to skip this step. Examples 1, 5 and 6 have no such button: they update
   immediately.
 - **Sliders** change $P$, $T$, the bulk composition, the Margules parameters, the number of
   pseudocompounds and the grid resolution.
@@ -136,7 +136,7 @@ $$g(X) = (1-X)\,g_1 + X\,g_2 + nRT\left[X\ln X + (1-X)\ln(1-X)\right] + W\,X(1-X
 
 At a fixed $X$, a solution is again linear in $P$ and $T$, so it is replaced by many
 **pseudocompounds** of fixed composition. The binary examples (1–4) use 201 per solution by default,
-evenly spaced in mole fraction (in Example 3, evenly spaced on the wt % axis). Example 5 places the
+evenly spaced in mole fraction (in Example 3, evenly spaced on the wt % axis). Examples 5 and 6 place the
 liquid on a triangular grid with a step of 1/40 in weight fraction (861 pseudocompounds).
 
 **Gibbs energy minimisation as a linear programme.** $\alpha_i$ is the amount of phase $i$ and
@@ -155,8 +155,12 @@ $$\min_{\alpha}\; G = \sum_i g_i\,\alpha_i \quad\text{subject to}\quad \sum_i A_
 The JuMP model is built once. Only the costs $g_i$ or the right-hand side $b_j$ are updated, so the
 programs can solve thousands of LPs per second.
 
+**Solids defined from the liquid (Example 6).** In the CaO–Al₂O₃–SiO₂ example the corners are oxides
+and most solids are compounds. Every solid is the liquid of its own composition minus a fusion term,
+$g_s = g_L(c_s) - \Delta H_s(1 - T/T_{m,s})$, so a congruently melting compound melts exactly at $T_{m,s}$.
+
 **Moles in the calculation, weight per cent in the plots.** All thermodynamics is done in moles,
-because ideal mixing counts particles. Examples 2–5 are *displayed* in wt % and $g$ per gram,
+because ideal mixing counts particles. Examples 2–6 are *displayed* in wt % and $g$ per gram,
 so that they can be compared directly with the published diagrams. A tangent that is a straight
 line (or plane) in mole fraction and $g$ per mole stays straight in wt % and $g$ per gram.
 
@@ -247,7 +251,8 @@ given in the header and the `USER INPUT` block of
 │   └── Papers/                             source papers: Bowen & Schairer, MgO–FeO–SiO₂ (Example 4);
 │                                           Osborn & Tait 1954, Di–Fo–An (Example 5);
 │                                           Olivine_Melting.png, their Fig. 7 (Mg₂SiO₄–Fe₂SiO₄ loop);
-│                                           CAS_Ternary.png, CaO–Al₂O₃–SiO₂ liquidus projection (Example 6)
+│                                           CAS_Ternary.png, CaO–Al₂O₃–SiO₂ liquidus projection (Example 6);
+│                                           Rankin & Merwin 1918, MgO–Al₂O₃–SiO₂ (not used yet)
 └── guide/
     ├── guide.tex, guide.pdf          the user guide
     ├── make_screenshots.jl           regenerates the annotated screenshots

@@ -1,7 +1,7 @@
 #=
 make_screenshots.jl – regenerate the annotated screenshots used in guide.tex
 
-    julia make_screenshots.jl 0      # one example (0 … 5)
+    julia make_screenshots.jl 0      # one example (0 … 6)
     julia make_screenshots.jl all    # all examples, each in its own Julia process
 
 Every example defines the same global names, so each one is loaded in a separate
@@ -14,7 +14,7 @@ const ROOT = normpath(joinpath(@__DIR__, ".."))
 const FIGS = joinpath(@__DIR__, "figures")
 
 if length(ARGS) == 1 && ARGS[1] == "all"
-    for k in 0:5
+    for k in 0:6
         run(`$(Base.julia_cmd()) $(@__FILE__) $k`)
     end
     exit()
@@ -24,7 +24,8 @@ mkpath(FIGS)
 
 file = Dict(0 => "Example0_fixed_composition.jl", 1 => "Example1_solution_playground.jl",
             2 => "Example2_eutectic_TX.jl",       3 => "Example3_peritectic_TX.jl",
-            4 => "Example4_olivine_loop_TX.jl",   5 => "Example5_ternary_DiAnFo.jl")[EX]
+            4 => "Example4_olivine_loop_TX.jl",   5 => "Example5_ternary_DiAnFo.jl",
+            6 => "Example6_ternary_CAS.jl")[EX]
 include(joinpath(ROOT, file))                    # defines build_app(), loads GLMakie
 
 # ----------------------------------------------------------------------------
@@ -100,6 +101,7 @@ function shot(fig, name; annotate = sc -> nothing)
     sc = overlay(fig)
     annotate(sc)
     save(joinpath(FIGS, name), fig; px_per_unit = 1.4)
+    empty!(sc)                                        # remove the markers: later screenshots are clean
     println("saved ", name)
 end
 
@@ -202,4 +204,25 @@ elseif EX == 5
     shot(fig, "ex5_1290_reference.png")
     app.toggles.section.active[] = false
     shot(fig, "ex5_projection.png")
+
+elseif EX == 6
+    fig, app = build_app()
+    axT = findblock(fig, Axis, "isothermal section")
+    sg = only(blocks(fig, SliderGrid))
+    ax3 = only(blocks(fig, Axis3))
+    shot(fig, "ex6_overview.png"; annotate = sc -> begin
+        click!(sc, axT, 0.50, 0.30, 1)                   # tocart(w) = (w_Al2O3 + w_SiO2/2, √3/2 w_SiO2)
+        mark!(sc, only(blocks(fig, Textbox)), 2)
+        mark!(sc, sliderrow(sg, 1), 3)
+        mark!(sc, union_rect(with_label(fig, "isothermal section"), with_label(fig, "reference")), 4)
+        mark!(sc, findblock(fig, Button, "Update section"), 5)
+        mark!(sc, axbox(ax3), 6)
+    end)
+    app.toggles.section.active[] = false
+    shot(fig, "ex6_projection.png")
+    app.toggles.reference.active[] = true
+    shot(fig, "ex6_reference.png")
+    app.toggles.reference.active[] = false; app.toggles.section.active[] = true
+    app.set_T(1300.0); app.set_bulk([0.40, 0.30, 0.30]); app.update_section()
+    shot(fig, "ex6_1300.png")
 end

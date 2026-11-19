@@ -29,8 +29,8 @@ with μ_k(L) = A_k - T B_k. At an invariant point the liquidus temperatures of i
 phases must equal the given temperature and all other solids must be lower. The misfit
 in temperature is minimised (Levenberg–Marquardt). A penalty keeps the liquid stable
 (convex g, no unmixing) on a grid of compositions, at the liquidus and at 2800 °C: with
-a stable liquid no liquidus can rise above the melting point of its solid. Only the
-seven third-degree excess terms get an entropy part W_S.
+a stable liquid no liquidus can rise above the melting point of its solid. A strong prior
+keeps W_S of all but the seven third-degree excess terms close to zero.
 
 The result of every run is written to fit_Example6_CAS_start.jl and is the start of the
 next run (delete that file to start afresh). The argument is the number of iterations:
