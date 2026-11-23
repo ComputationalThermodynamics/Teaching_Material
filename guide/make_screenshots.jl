@@ -167,7 +167,14 @@ elseif EX in (2, 3)
         mark!(sc, union_rect([sliderrow(sg, i) for i in 1:length(sg.sliders)]...), 4)
         mark!(sc, findblock(fig, Button, "Initialise"), 5)
         mark!(sc, union_rect(with_label(fig, "show fields"), with_label(fig, "compute on click")), 6)
+        EX == 3 && mark!(sc, findblock(fig, Button, "Zoom"), 7; corner = :rt)
     end)
+    if EX == 3
+        # zoom on the peritectic: En composition below and above T_p, and a point in the En + L field
+        app.zoom_peritectic()
+        app.add_point(X_EN, 1553.0); app.add_point(X_EN, 1558.0); app.add_point(0.63, 1548.0)
+        shot(fig, "ex3_peritectic.png")
+    end
 
 elseif EX == 4
     fig, app = build_app()

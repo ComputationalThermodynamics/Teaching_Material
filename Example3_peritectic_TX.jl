@@ -73,8 +73,19 @@ As in Example 2: left-click in the T–X diagram, then "Compute g–x". The slid
 "ΔW of L" adds a regular-solution term ΔW x(1-x) to the calibrated liquid
 (ΔW < 0: the two-liquid field shrinks; ΔW > 0: it grows).
 
-Suggested exercises: pick points at the En composition (59.85 wt% SiO2) just
-below and just above T_p and compare the g–x diagrams; cool liquids with 55,
+ZOOM. The En + L field is only 10 °C high, so the T–X diagram can be zoomed:
+    "Zoom: peritectic"     a window around En and the peritectic temperature T_p
+                           (T_p is found with the LP at the current P and ΔW)
+    drag a box             with the left mouse button: any other part of the diagram
+    "Zoom: full diagram"   the same button, while a part is shown: back to the whole diagram
+The grid, its boundary points and the exact boundaries are computed again inside
+the window, so a field that falls between the nodes of the whole diagram (En + L
+with 25 × 25 nodes) is found there. The liquid pseudocompounds stay the same: in
+a small window their spacing shows as steps in the fields.
+The g–x panels are not changed by this zoom: they show the whole composition range.
+
+Suggested exercises: zoom on the peritectic and pick points at the En composition
+(59.85 wt% SiO2) just below and just above T_p and compare the g–x diagrams; cool liquids with 55,
 60.5, 63 and 67 wt% SiO2 and follow the phases (which solid appears first,
 what happens at the peritectic and at the eutectic?); pick a point with
 85 wt% SiO2 at 1750 °C (two liquids) and look at the hump of the liquid curve.
@@ -120,6 +131,9 @@ const P_START   = 0.0                                # pressure [kbar]
 const TLIM      = (1500.0, 1950.0)                   # temperature range [°C]
 const NGRID     = 25                                 # initial grid nodes per axis
 const NSLOTS    = 3                                  # number of g–x panels
+# window of the button "Zoom: peritectic", relative to the composition of En and to the peritectic temperature
+const ZOOM_X    = (-0.05, 0.10)                      # wt fraction SiO2: from 5 wt% below En to 10 wt% above
+const ZOOM_T    = (-30.0, 30.0)                      # [K]: the eutectic (10 K below the peritectic) is inside
 
 const SLOT_COLORS  = [:royalblue3, :darkorange2, :forestgreen]
 const LIQ_COLOR    = :firebrick
@@ -149,8 +163,26 @@ w2x(w) = clamp((MOLAR_MASS[1] - MOLAR_MASS[2] / w) / (MOLAR_MASS[1] - MOLAR_MASS
 const X_MIN = x2w(0.0)                               # left end of the axis: forsterite, 42.7 wt% SiO2
 const X_EN  = x2w(0.5)                               # enstatite, 59.85 wt% SiO2
 
-# x-axis ticks: every 10 wt%; the solids are labelled by name
-const XTICKS = ([X_MIN, 0.5, X_EN, 0.7, 0.8, 0.9, 1.0], ["Fo", "50", "En", "70", "80", "90", "100"])
+"""
+x-axis ticks of the window X1 … X2 (weight fractions): round values of wt% (at least four);
+Fo and En are labelled by name. The whole diagram has a tick every 10 wt%:
+Fo, 50, En, 70, 80, 90, 100.
+"""
+function wt_ticks(X1, X2)
+    named = [(X_MIN, "Fo"), (X_EN, "En")]
+    d     = 100 * (X2 - X1) / 4                              # the largest step [wt%] that gives four ticks ...
+    step  = 10.0^floor(log10(d))
+    step *= d >= 5step ? 5 : d >= 2step ? 2 : 1              # ... rounded down to 1, 2 or 5 times a power of ten
+    fmt   = Printf.Format("%.$(max(0, -floor(Int, log10(step))))f")
+    ticks = [(k * step / 100, Printf.format(fmt, k * step))
+             for k in ceil(Int, 100X1 / step - 1e-9):floor(Int, 100X2 / step + 1e-9)]
+    filter!(t -> all(abs(t[1] - x) > 0.04 * (X2 - X1) for (x, _) in named), ticks)   # no number next to a name
+    append!(ticks, [t for t in named if X1 <= t[1] <= X2])
+    sort!(ticks)
+    return first.(ticks), last.(ticks)
+end
+
+const XTICKS = wt_ticks(X_MIN, 1.0)                  # the whole diagram (also used in the g–x panels)
 const XLABEL = "wt% " * COMPONENTS[2]
 
 "Partial excess functions of the term x(1-x)(1-2x)^k: its contributions to μ_Fo and μ_SiO2."
@@ -284,6 +316,8 @@ function build_app()
     P      = Ref(P_START)
     phases = Ref(system_phases(W[], NPC))
     lp     = Ref(GibbsLP(phases[], [0.5, 0.5]))
+    whole  = (X_MIN, 1.0, TLIM...)                    # the whole T–X diagram: (X1, X2, T1, T2)
+    win    = Ref(whole)                               # the window that is shown (changed by the zoom)
 
     points    = NamedTuple{(:X, :T, :c),Tuple{Float64,Float64,Int}}[]   # c = colour index
     pending   = Ref{Union{Nothing,Tuple{Float64,Float64}}}(nothing)
@@ -306,9 +340,11 @@ function build_app()
 
     axTX = Axis(right[1, 1]; xlabel = XLABEL, ylabel = "T [°C]",
                 xticks = XTICKS,
-                title = "T–X diagram  (left-click to pick a point)")
-    limits!(axTX, X_MIN, 1, TLIM...)
-    for name in (:rectanglezoom, :scrollzoom, :dragpan)   # keep the diagram fixed
+                title = "T–X diagram  (left-click: pick a point,  drag a box: zoom)")
+    limits!(axTX, win[]...)
+    # keep the diagram fixed: no zooming or panning of Makie. The window is changed only by
+    # set_window! (see below), which also computes the grid again.
+    for name in (:rectanglezoom, :scrollzoom, :dragpan, :limitreset)
         name in keys(interactions(axTX)) && deregister_interaction!(axTX, name)
     end
 
@@ -326,6 +362,7 @@ function build_app()
     btn_init  = Button(cb[1, 1], label = "Initialise grid")
     btn_comp  = Button(cb[1, 2], label = "Compute g–x", buttoncolor = RGBf(0.80, 0.88, 1.0))
     btn_clear = Button(cb[1, 3], label = "Clear points")
+    btn_zoom  = Button(cb[1, 4], label = "Zoom: peritectic")   # "Zoom: full diagram" while a part is shown
     ct = ctrl[3, 1] = GridLayout(halign = :left)
     tg_fields = Toggle(ct[1, 1], active = true);  Label(ct[1, 2], "show fields",      halign = :left)
     tg_line   = Toggle(ct[1, 3], active = true);  Label(ct[1, 4], "exact boundaries", halign = :left)
@@ -347,16 +384,17 @@ function build_app()
     scatter!(axTX, pend_pos; marker = :xcross, markersize = 20, color = :black, visible = pend_vis)
 
     # ------------------------------------------------------------ functions
-    "Initialise: scan the grid, refine the boundaries, draw the fields and the exact boundaries."
+    "Initialise: scan the grid in the window, refine the boundaries, draw the fields and the exact boundaries."
     function init_grid!()
         n   = round(Int, sl_grid.value[])
-        Xs  = [X_MIN + (1 - X_MIN) * (i - 0.5) / n for i in 1:n]   # cell centres (wt fraction): the ends are not nodes
-        Ts  = range(TLIM..., length = n)
+        X1, X2, T1, T2 = win[]                        # the whole diagram or a zoom window
+        Xs  = [X1 + (X2 - X1) * (i - 0.5) / n for i in 1:n]        # cell centres (wt fraction): the ends are not nodes
+        Ts  = range(T1, T2, length = n)
         t0  = time()
         labels, asm = scan_grid(key, Xs, Ts)
         Xb, Tb      = refine_boundaries(key, Xs, Ts, labels)
         dt  = time() - t0
-        Xl, Tl      = exact_boundaries(W[], P[], range(TLIM..., length = 600))
+        Xl, Tl      = exact_boundaries(W[], P[], range(T1, T2, length = 600))
         Xl          = x2w.(Xl)                        # mole fraction -> weight fraction for the plot
 
         for a in asm
@@ -467,7 +505,7 @@ function build_app()
               lines!(axTX, [minimum(xs), maximum(xs)], [T, T]; color = c, linewidth = 3),
               scatter!(axTX, xs, fill(T, length(xs)); markersize = 11, color = c),
               scatter!(axTX, [X], [T]; marker = :xcross, markersize = 18, color = c),
-              text!(axTX, Point2f(1.0, T); text = rich("T", subscript(string(rank))), color = c,
+              text!(axTX, Point2f(win[][2], T); text = rich("T", subscript(string(rank))), color = c,   # right edge
                     align = (:right, :bottom), offset = (-4, 2), fontsize = 18, font = :bold))
     end
 
@@ -509,6 +547,43 @@ function build_app()
         pending[] = (X, T); compute!()
     end
 
+    """
+    Zoom: show the window X1 … X2 (wt fraction SiO2), T1 … T2 [°C] of the diagram and compute the
+    grid again inside it. The g–x panels are not changed, only the isotherms are drawn again.
+    """
+    function set_window!(X1, X2, T1, T2)
+        X1, X2 = clamp.(minmax(X1, X2), X_MIN, 1.0)   # not outside the whole diagram
+        T1, T2 = clamp.(minmax(T1, T2), TLIM...)
+        if X2 - X1 < 0.002 || T2 - T1 < 1.0
+            status.text[] = "Zoom: the window is too small (at least 0.2 wt% and 1 °C).\n "
+            return
+        end
+        win[] = (X1, X2, T1, T2)
+        btn_zoom.label[] = win[] == whole ? "Zoom: peritectic" : "Zoom: full diagram"   # where the button goes next
+        axTX.xticks = wt_ticks(X1, X2)
+        limits!(axTX, X1, X2, T1, T2)
+        init_grid!()
+        redraw_slots!()
+    end
+
+    """
+    Zoom on the peritectic. Its temperature T_p is found with the LP: En alone is stable at its
+    own composition below T_p and has broken down (to Fo + L) above it. T_p depends on P and ΔW.
+    """
+    function zoom_peritectic!()
+        has_En(T) = SOLIDS[2].name in key(X_EN, T)
+        Ta, Tb = TLIM
+        if !has_En(Ta) || has_En(Tb)
+            status.text[] = @sprintf("Zoom: the breakdown of En is not between %.0f and %.0f °C at this P and ΔW.\n ", TLIM...)
+            return
+        end
+        for _ in 1:20                                 # bisection: En is stable at Ta, not at Tb
+            Tm = (Ta + Tb) / 2
+            has_En(Tm) ? (Ta = Tm) : (Tb = Tm)
+        end
+        set_window!(X_EN + ZOOM_X[1], X_EN + ZOOM_X[2], Ta + ZOOM_T[1], Ta + ZOOM_T[2])
+    end
+
     "New ΔW or number of pseudocompounds: new phases, new LP."
     function rebuild!()
         W[]      = sl_W.value[]
@@ -545,6 +620,16 @@ function build_app()
         return Consume(false)
     end
 
+    # Zoom: drag a box with the left mouse button. The box is drawn by the rectangle zoom of Makie;
+    # what happens when the button is released is our own function. A box smaller than 1 % of
+    # the window is a click with a moving mouse: nothing happens.
+    register_interaction!(axTX, :zoom_box, Makie.RectangleZoom(axTX) do box
+        (X1, T1), (X2, T2) = extrema(box)
+        w = win[]
+        X2 - X1 > 0.01 * (w[2] - w[1]) && T2 - T1 > 0.01 * (w[4] - w[3]) && set_window!(X1, X2, T1, T2)
+    end)
+    on(_ -> win[] == whole ? zoom_peritectic!() : set_window!(whole...), btn_zoom.clicks)   # in, or back out
+
     on(_ -> compute!(), btn_comp.clicks)
     on(_ -> init_grid!(), btn_init.clicks)
     on(btn_clear.clicks) do _
@@ -563,6 +648,7 @@ function build_app()
     init_grid!()
     redraw_slots!()
     return fig, (add_point = add_point!, init_grid = init_grid!,
+                 zoom    = set_window!, zoom_peritectic = zoom_peritectic!,
                  set_P   = v -> set_close_to!(sl_P, v),
                  set_W   = v -> set_close_to!(sl_W, v),
                  set_npc = v -> set_close_to!(sl_npc, v))

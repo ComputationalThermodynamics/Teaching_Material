@@ -23,7 +23,7 @@ split into many *pseudocompounds*, and the minimisation is solved as a **linear 
 | [`Example0_fixed_composition.jl`](Example0_fixed_composition.jl) | $P$–$T$ | Three phases of fixed composition (A, AB, B) and a univariant reaction |
 | [`Example1_solution_playground.jl`](Example1_solution_playground.jl) | $g$–$x$ | Solid solution with a solvus, compounds and a melt; switch phases on and off, live with $P$ and $T$ |
 | [`Example2_eutectic_TX.jl`](Example2_eutectic_TX.jl) | $T$–$X$ | Binary eutectic diopside–anorthite (Di–An) |
-| [`Example3_peritectic_TX.jl`](Example3_peritectic_TX.jl) | $T$–$X$ | Binary peritectic forsterite–silica (Fo–SiO₂): enstatite melts incongruently; two liquids |
+| [`Example3_peritectic_TX.jl`](Example3_peritectic_TX.jl) | $T$–$X$ | Binary peritectic forsterite–silica (Fo–SiO₂): enstatite melts incongruently; two liquids; zoom on the peritectic |
 | [`Example4_olivine_loop_TX.jl`](Example4_olivine_loop_TX.jl) | $T$–$X$ | Melting loop of a solid solution (olivine Fo–Fa), compared with 1 bar experiments |
 | [`Example5_ternary_DiAnFo.jl`](Example5_ternary_DiAnFo.jl) | ternary + 3D | Di–An–Fo: isothermal sections, liquidus projection and the $g$ surface with its tangent plane |
 | [`Example6_ternary_CAS.jl`](Example6_ternary_CAS.jl) | ternary + 3D | CaO–Al₂O₃–SiO₂: thirteen solids (congruent and incongruent compounds), liquidus projection compared with the course figure |
@@ -107,6 +107,10 @@ julia> include("Example2_eutectic_TX.jl")
 - In Examples 0 and 2–4, click **Compute g–x** to draw the $g$–$x$ diagram of that point. You can also
   switch on *compute on click* to skip this step. Examples 1, 5 and 6 have no such button: they update
   immediately.
+- In Example 3, the $T$–$X$ diagram can be **zoomed**, because the En + L field is only 10 °C high:
+  click **Zoom: peritectic**, or drag a box with the left mouse button. The grid is computed again
+  inside the window. The same button (**Zoom: full diagram**) goes back. The phase diagrams of the
+  other examples cannot be zoomed, so that they do not move by accident.
 - **Sliders** change $P$, $T$, the bulk composition, the Margules parameters, the number of
   pseudocompounds and the grid resolution.
 - **Toggles** hide the coloured stability fields, so that students can find the topology
@@ -150,7 +154,9 @@ $$\min_{\alpha}\; G = \sum_i g_i\,\alpha_i \quad\text{subject to}\quad \sum_i A_
   which is the common-tangent construction.
 - At most $c$ phases coexist at fixed $P$ and $T$ (**phase rule**).
 - **Phase diagrams** come from solving the LP on a grid. Field boundaries are located by
-  bisection between neighbouring grid nodes that have different assemblages.
+  bisection between neighbouring grid nodes that have different assemblages. A field that is
+  thinner than the grid spacing can fall between the nodes; use more grid nodes or, in Example 3,
+  the zoom.
 
 The JuMP model is built once. Only the costs $g_i$ or the right-hand side $b_j$ are updated, so the
 programs can solve thousands of LPs per second.
